@@ -52,4 +52,8 @@ public class ShopService {
     public List<Shop> getShopsByDistrict(String district) {
         return shopRepository.findByDistrict(district);
     }
+    // Get shop by ID
+public Shop getShopById(Long id) {
+    return shopRepository.findById(id).orElse(null);
+}
 }

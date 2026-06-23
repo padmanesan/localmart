@@ -66,4 +66,9 @@ public class ShopController {
     public List<Shop> getShopsByDistrict(@PathVariable String district) {
         return shopService.getShopsByDistrict(district);
     }
+    // Get shop by ID
+@GetMapping("/{id}")
+public Shop getShopById(@PathVariable Long id) {
+    return shopService.getShopById(id);
+}
 }
