@@ -39,7 +39,7 @@ public class AISearchController {
                 smallShopList.add(Map.of(
                     "id", s.getId(),
                     "name", s.getName(),
-                    "category", s.getCategory() != null ? s.getCategory() : "General",
+                    "category", s.getMainCategory() != null ? s.getMainCategory() : "General",
                     "description", s.getDescription() != null ? s.getDescription() : ""
                 ));
             }
