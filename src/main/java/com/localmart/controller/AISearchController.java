@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentResponse;
 import com.localmart.dto.AISearchRequest;
-import com.localmart.model.Shop; // Ensure this matches your exact entity package package path
-import com.localmart.repository.ShopRepository; // Ensure this matches your exact repository package path
+import com.localmart.model.Shop; 
+import com.localmart.repository.ShopRepository; 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +15,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*") // Allows clean CORS access for local & live React builds
+@CrossOrigin(origins = "*") 
 public class AISearchController {
 
     @Autowired
@@ -31,20 +31,22 @@ public class AISearchController {
         }
 
         try {
-            // 1. Grab all registered shops from MySQL to feed as contextual options to Gemini
+            // 1. Grab all registered shops from MySQL
             List<Shop> allShops = shopRepository.findAll();
             
             List<Map<String, Object>> smallShopList = new ArrayList<>();
             for (Shop s : allShops) {
-                smallShopList.add(Map.of(
-                    "id", s.getId(),
-                    "name", s.getName(),
-                    "category", s.getMainCategory() != null ? s.getMainCategory() : "General",
-                    "description", s.getDescription() != null ? s.getDescription() : ""
-                ));
+                // Using a regular HashMap instead of Map.of() to completely prevent NullPointerExceptions on missing values
+                Map<String, Object> shopMap = new HashMap<>();
+                shopMap.put("id", s.getId());
+                shopMap.put("name", s.getName() != null ? s.getName() : "Unnamed Shop");
+                shopMap.put("category", s.getMainCategory() != null ? s.getMainCategory() : "General");
+                shopMap.put("description", s.getDescription() != null ? s.getDescription() : "");
+                
+                smallShopList.add(shopMap);
             }
 
-            // 2. Draft strict system routing instructions for the AI model mapping layer
+            // 2. Draft strict system routing instructions for the AI model
             String prompt = String.format(
                 "You are an intelligent marketplace assistant for LocalMart. The customer is typing: \"%s\".\n\n" +
                 "Here is the database selection of active shops in JSON configuration:\n%s\n\n" +
@@ -54,8 +56,7 @@ public class AISearchController {
                 userQuery, objectMapper.writeValueAsString(smallShopList)
             );
 
-            // 3. Connect to Gemini 2.5 Flash using the Java client SDK
-            // Note: The client will automatically discover your system's GOOGLE_API_KEY environment variable.
+            // 3. Connect to Gemini using the Java client SDK
             Client client = new Client();
             GenerateContentResponse response = client.models.generateContent(
                 "gemini-2.5-flash",
@@ -65,7 +66,7 @@ public class AISearchController {
 
             String responseText = response.text().trim();
 
-            // 4. Clean fallback safety check if markdown backticks leak into response text anyway
+            // 4. Clean fallback safety check if markdown backticks leak into response text
             if (responseText.contains("```")) {
                 responseText = responseText.replaceAll("```json|```", "").trim();
             }
@@ -77,7 +78,7 @@ public class AISearchController {
                 return ResponseEntity.ok(Map.of("results", Collections.emptyList()));
             }
 
-            // 6. Look up and resolve the full SQL objects from MySQL to return straight to React
+            // 6. Look up and resolve the full SQL objects from MySQL
             List<Shop> matchedShops = shopRepository.findAllById(matchedIds);
 
             return ResponseEntity.ok(Map.of("results", matchedShops));
