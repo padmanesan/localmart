@@ -21,10 +21,16 @@ public class ShopController {
         return shopService.registerShop(shop);
     }
 
-    // Get all shops
+    // Get all shops (Used by your frontend /shops page)
     @GetMapping("/all")
     public List<Shop> getAllShops() {
         return shopService.getAllShops();
+    }
+
+    // NEW PLAN: Get shops sorted by distance based on user's live coordinates (Chennai/Dindigul)
+    @GetMapping("/nearby")
+    public List<Shop> getNearbyShops(@RequestParam double lat, @RequestParam double lng) {
+        return shopService.getNearbyShops(lat, lng);
     }
 
     // Get shops by city
@@ -66,9 +72,17 @@ public class ShopController {
     public List<Shop> getShopsByDistrict(@PathVariable String district) {
         return shopService.getShopsByDistrict(district);
     }
+
     // Get shop by ID
-@GetMapping("/{id}")
-public Shop getShopById(@PathVariable Long id) {
-    return shopService.getShopById(id);
-}
+    @GetMapping("/{id}")
+    public Shop getShopById(@PathVariable Long id) {
+        return shopService.getShopById(id);
+    }
+
+    // EMERGENCY RESET: Call this endpoint to clear out the duplicate walls instantly
+    @DeleteMapping("/clear-all-duplicates-reset")
+    public String clearAndResetTable() {
+        shopService.clearAllShops();
+        return "Database table successfully wiped clean of all duplicates!";
+    }
 }

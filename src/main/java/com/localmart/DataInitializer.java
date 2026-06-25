@@ -16,14 +16,12 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // 1. WIPE THE TABLE CLEAN TO REMOVE DUPLICATES
-        System.out.println("🧹 Clearing old shop data to fix duplicates...");
+        System.out.println("🧹 Clearing old duplicate shop data...");
         shopRepository.deleteAll();
         
-        // 2. INSERT EXACTLY ONE CLEAN COPY OF EACH SHOP
-        System.out.println(" Seeding database with a fresh, clean list of local shops...");
+        System.out.println("🌱 Seeding database with geographically diverse shops...");
 
-        // Shop 1: Venkateswara Wood Works (Single, Clean Copy)
+        // 1. Oddanchatram/Dindigul Area Shop
         Shop shop1 = new Shop();
         shop1.setName("Venkateswara Wood Works");
         shop1.setOwnerName("Ramesh Kumar");
@@ -31,7 +29,7 @@ public class DataInitializer implements CommandLineRunner {
         shop1.setAddress("10, C VOC Nagar, Dharapuram Road");
         shop1.setMainCategory("Home & Living");
         shop1.setSubCategory("Furniture");
-        shop1.setDescription("Premium quality wooden furniture, custom sofas, tables, and interior home woodworking.");
+        shop1.setDescription("Premium quality wooden furniture, custom sofas, tables, and interior woodworking.");
         shop1.setCity("Oddanchatram");
         shop1.setDistrict("Dindigul");
         shop1.setState("Tamil Nadu");
@@ -45,29 +43,29 @@ public class DataInitializer implements CommandLineRunner {
         shop1.setIsOpen(true);
         shopRepository.save(shop1);
 
-        // Shop 2: Sri Lakshmi Medicals
+        // 2. Chennai Area Shop
         Shop shop2 = new Shop();
-        shop2.setName("Sri Lakshmi Medicals");
-        shop2.setOwnerName("Dr. S. Anand");
-        shop2.setPhone("9876543211");
-        shop2.setAddress("42, Palani Main Road");
-        shop2.setMainCategory("Health & Wellness");
-        shop2.setSubCategory("Medical");
-        shop2.setDescription("24/7 retail pharmacy offering prescription medicines, baby care products, and wellness checks.");
-        shop2.setCity("Oddanchatram");
-        shop2.setDistrict("Dindigul");
+        shop2.setName("Chennai Mega Grocery Mart");
+        shop2.setOwnerName("S. Krishnan");
+        shop2.setPhone("9876543299");
+        shop2.setAddress("Ayaravadi Street, T-Nagar");
+        shop2.setMainCategory("Food & Drinks");
+        shop2.setSubCategory("Grocery");
+        shop2.setDescription("Complete supermarket for organic foods, imports, household staples, and daily essentials.");
+        shop2.setCity("Chennai");
+        shop2.setDistrict("Chennai");
         shop2.setState("Tamil Nadu");
-        shop2.setPincode("624619");
-        shop2.setLatitude(10.4870);
-        shop2.setLongitude(77.7430);
-        shop2.setOpenTime("12:00 AM");
-        shop2.setCloseTime("11:59 PM");
-        shop2.setRating(4.8);
-        shop2.setTotalReviews(112);
+        shop2.setPincode("600017");
+        shop2.setLatitude(13.0418); // Chennai Latitude
+        shop2.setLongitude(80.2341); // Chennai Longitude
+        shop2.setOpenTime("07:00 AM");
+        shop2.setCloseTime("10:00 PM");
+        shop2.setRating(4.7);
+        shop2.setTotalReviews(310);
         shop2.setIsOpen(true);
         shopRepository.save(shop2);
 
-        // Shop 3: Namma Ooru Biriyani
+        // 3. Oddanchatram Area Restaurant
         Shop shop3 = new Shop();
         shop3.setName("Namma Ooru Biriyani");
         shop3.setOwnerName("M. Selvam");
@@ -75,7 +73,7 @@ public class DataInitializer implements CommandLineRunner {
         shop3.setAddress("15, Bye Pass Road");
         shop3.setMainCategory("Food & Drinks");
         shop3.setSubCategory("Restaurants");
-        shop3.setDescription("Authentic local wood-fired chicken and mutton biriyani served with traditional sides.");
+        shop3.setDescription("Authentic local wood-fired chicken and mutton biriyani.");
         shop3.setCity("Oddanchatram");
         shop3.setDistrict("Dindigul");
         shop3.setState("Tamil Nadu");
@@ -89,28 +87,6 @@ public class DataInitializer implements CommandLineRunner {
         shop3.setIsOpen(true);
         shopRepository.save(shop3);
 
-        // Shop 4: Trendz Boutique
-        Shop shop4 = new Shop();
-        shop4.setName("Trendz Boutique");
-        shop4.setOwnerName("Priya Dharshini");
-        shop4.setPhone("9876543213");
-        shop4.setAddress("5, Car Street");
-        shop4.setMainCategory("Shopping");
-        shop4.setSubCategory("Clothes");
-        shop4.setDescription("Latest ethnic wear, designer sarees, modern western outfits, and custom bridal alterations.");
-        shop4.setCity("Oddanchatram");
-        shop4.setDistrict("Dindigul");
-        shop4.setState("Tamil Nadu");
-        shop4.setPincode("624619");
-        shop4.setLatitude(10.4866);
-        shop4.setLongitude(77.7444);
-        shop4.setOpenTime("10:00 AM");
-        shop4.setCloseTime("09:00 PM");
-        shop4.setRating(4.6);
-        shop4.setTotalReviews(42);
-        shop4.setIsOpen(true);
-        shopRepository.save(shop4);
-        
-        System.out.println(" Success: Database cleared and reset with 4 unique shop listings!");
+        System.out.println("✨ Success: Database cleared and reset with regional samples!");
     }
 }
