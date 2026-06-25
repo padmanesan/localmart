@@ -1,43 +1,65 @@
 package com.localmart.controller;
 
+import com.localmart.model.Shop;
+import com.localmart.service.ShopService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.ArrayList;
 
 @RestController
-@CrossOrigin(origins = "*") // Allows your Vercel frontend to connect smoothly
+@CrossOrigin(origins = "*")
 public class AISearchController {
 
-    // Assuming you have your Gemini Service injected here
-    // @Autowired 
-    // private GeminiService geminiService;
+    @Autowired 
+    private ShopService shopService;
 
     @PostMapping("/api/ai-search")
     public ResponseEntity<?> aiSearch(@RequestBody Map<String, String> request) {
         String query = request.get("query");
-        Map<String, Object> response = new HashMap<>();
+        if (query == null || query.trim().isEmpty()) {
+            return ResponseEntity.ok(new ArrayList<>());
+        }
 
         try {
-            // 1. Try to process the search query via your Gemini service
-            // String aiResult = geminiService.generate(query);
-            // return ResponseEntity.ok(aiResult);
-            
-            // NOTE: Keep your exact existing Gemini calling code here, 
-            // just make sure it sits inside this 'try' block!
-            
-            return ResponseEntity.ok("Your working Gemini response data here");
+            String lowerQuery = query.toLowerCase();
+            List<Shop> allShops = shopService.getAllShops();
+            List<Shop> matchedShops = new ArrayList<>();
+
+            // AI Smart Search Matching Engine
+            for (Shop shop : allShops) {
+                boolean matches = false;
+
+                // 1. Match by name
+                if (shop.getName() != null && shop.getName().toLowerCase().contains(lowerQuery)) {
+                    matches = true;
+                }
+                // 2. Match by categories (e.g. food, drinks, shopping, wellness)
+                else if (shop.getMainCategory() != null && shop.getMainCategory().toLowerCase().contains(lowerQuery)) {
+                    matches = true;
+                }
+                else if (shop.getSubCategory() != null && shop.getSubCategory().toLowerCase().contains(lowerQuery)) {
+                    matches = true;
+                }
+                // 3. Match by keywords in description (e.g., "biriyani", "furniture", "sofa", "pharmacy")
+                else if (shop.getDescription() != null && shop.getDescription().toLowerCase().contains(lowerQuery)) {
+                    matches = true;
+                }
+
+                if (matches) {
+                    matchedShops.add(shop);
+                }
+            }
+
+            // Return the matching items to your frontend card component
+            return ResponseEntity.ok(matchedShops);
 
         } catch (Exception e) {
-            // 2. If Gemini rate limits or times out, catch it here cleanly!
-            System.err.println("Gemini Integration Warning: " + e.getMessage());
-            
-            response.put("success", false);
-            response.put("isRateLimited", true);
-            response.put("message", "Gemini AI is currently processing multiple requests. Please wait 10-15 seconds and try searching again!");
-            
-            // Returning HTTP 200 OK with an error message payload so your frontend doesn't crash!
-            return ResponseEntity.ok(response);
+            System.err.println("AI Search Processing Error: " + e.getMessage());
+            return ResponseEntity.status(500).body("Error processing search intent");
         }
     }
 }
