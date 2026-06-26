@@ -6,15 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
+import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "*")
 public class AISearchController {
 
-    @Autowired 
+    @Autowired
     private ShopService shopService;
 
     @PostMapping("/api/ai-search")
@@ -25,28 +23,40 @@ public class AISearchController {
         }
 
         try {
-            String lowerQuery = query.toLowerCase();
+            // Split query into individual words — "biriyani in trichy" → ["biriyani", "trichy"]
+            String[] keywords = query.toLowerCase().trim().split("\\s+");
+
             List<Shop> allShops = shopService.getAllShops();
             List<Shop> matchedShops = new ArrayList<>();
 
-            // AI Smart Search Matching Engine
             for (Shop shop : allShops) {
-                boolean matches = false;
+                String name        = (shop.getName()        != null ? shop.getName()        : "").toLowerCase();
+                String mainCat     = (shop.getMainCategory() != null ? shop.getMainCategory() : "").toLowerCase();
+                String subCat      = (shop.getSubCategory()  != null ? shop.getSubCategory()  : "").toLowerCase();
+                String description = (shop.getDescription()  != null ? shop.getDescription()  : "").toLowerCase();
+                String city        = (shop.getCity()         != null ? shop.getCity()         : "").toLowerCase();
+                String district    = (shop.getDistrict()     != null ? shop.getDistrict()     : "").toLowerCase();
+                String address     = (shop.getAddress()      != null ? shop.getAddress()      : "").toLowerCase();
 
-                // 1. Match by name
-                if (shop.getName() != null && shop.getName().toLowerCase().contains(lowerQuery)) {
-                    matches = true;
-                }
-                // 2. Match by categories (e.g. food, drinks, shopping, wellness)
-                else if (shop.getMainCategory() != null && shop.getMainCategory().toLowerCase().contains(lowerQuery)) {
-                    matches = true;
-                }
-                else if (shop.getSubCategory() != null && shop.getSubCategory().toLowerCase().contains(lowerQuery)) {
-                    matches = true;
-                }
-                // 3. Match by keywords in description (e.g., "biriyani", "furniture", "sofa", "pharmacy")
-                else if (shop.getDescription() != null && shop.getDescription().toLowerCase().contains(lowerQuery)) {
-                    matches = true;
+                // Combined searchable text for this shop
+                String combined = name + " " + mainCat + " " + subCat + " "
+                                + description + " " + city + " " + district + " " + address;
+
+                // Shop matches if ANY keyword matches something in the combined text
+                boolean matches = false;
+                for (String keyword : keywords) {
+                    // Skip filler words
+                    if (keyword.equals("in") || keyword.equals("near") ||
+                        keyword.equals("at") || keyword.equals("the")  ||
+                        keyword.equals("a")  || keyword.equals("an")   ||
+                        keyword.equals("me") || keyword.equals("find") ||
+                        keyword.equals("show") || keyword.equals("get")) {
+                        continue;
+                    }
+                    if (combined.contains(keyword)) {
+                        matches = true;
+                        break;
+                    }
                 }
 
                 if (matches) {
@@ -54,12 +64,11 @@ public class AISearchController {
                 }
             }
 
-            // Return the matching items to your frontend card component
             return ResponseEntity.ok(matchedShops);
 
         } catch (Exception e) {
-            System.err.println("AI Search Processing Error: " + e.getMessage());
-            return ResponseEntity.status(500).body("Error processing search intent");
+            System.err.println("AI Search Error: " + e.getMessage());
+            return ResponseEntity.status(500).body("Search error");
         }
     }
-}   
+}
