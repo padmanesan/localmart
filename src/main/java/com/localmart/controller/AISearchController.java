@@ -62,4 +62,4 @@ public class AISearchController {
             return ResponseEntity.status(500).body("Error processing search intent");
         }
     }
-}
+}   
